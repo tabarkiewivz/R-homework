@@ -1,0 +1,141 @@
+https://github.com/tabarkiewivz/R-homework.git
+
+Imię: Karolina
+Nazwisko: Tabarkiewicz
+Numer albumu: 29479
+
+# --------------------------------------------------------
+# Zadanie.12 
+#
+# W R dostępne są zbiory WWWusage, presidents oraz mdeaths. Wczytaj je i dokonaj eksploracji danych.
+# Sprawdź czy są to zbiory typu "time series". Opisz jakich okresów dotyczą dane oraz jakim okresom 
+# czasu odpowiadają poszczególne obserwacje. Sporządź również wykresy liniowe obrazujące te szeregi czasowe.
+#
+# Pełne rozwiązanie tego zadania musi zawierać dla każdego zbioru: 
+#	- Twój kod R, 
+#	- Twój opis i interprację szeregów czasowych,
+#   - czytelną wizualizację na wykresach. 
+#
+# --------------------------------------------------------
+# tu wpisz swój kod: 
+data(WWWusage)data(presidents)data(mdeaths)# Eksploracja danych WWWusagestr(WWWusage)head(WWWusage)# Sprawdzenie, czy to szereg czasowyis.ts(WWWusage)# Wykres liniowyplot(WWWusage, main = "WWWusage Time Series", xlab = "Time", ylab = "Hits")# Opis szeregu czasowego# - Okresy czasowe odpowiadające poszczególnym obserwacjom: miesięczne# - Interpreatacja: Wydaje się, że liczba hitów na stronie internetowej zmienia się w czasie# Eksploracja danych presidentsstr(presidents)head(presidents)# Sprawdzenie, czy to szereg czasowyis.ts(presidents)# Wykres liniowyplot(presidents, main = "Presidents Time Series", xlab = "Time", ylab = "Number of Presidents")# Opis szeregu czasowego# - Okres danych: od 1945 do 1975# - Okresy czasowe odpowiadające poszczególnym obserwacjom: roczne# - Interpretacja: Liczba prezydentów zmienia się w czasie# Eksploracja danych mdeathsstr(mdeaths)head(mdeaths)# Sprawdzenie, czy to szereg czasowyis.ts(mdeaths)# Wykres liniowyplot(mdeaths, main = "Monthly Deaths Time Series", xlab = "Time", ylab = "Number of Deaths")# Opis szeregu czasowego# - Okres danych: od 1974 do 1980# - Okresy czasowe odpowiadające poszczególnym obserwacjom: miesięczne# - Interpretacja: Liczba zgonów zmienia się w czasie
+
+
+
+# --------------------------------------------------------
+# Zadanie.13
+#
+# Dostępny jest zbiór danych prezentujących liczbę małżeństw (v1). Prezentuje on dane za okres od stycznia
+# 2009 do grudnia 2011. Dokonaj jego dekompozycji. Wybierz właściwy typ modelu wahań w czasie. Wykreśl
+# wyniki. Odpowiedz na pytania:
+#
+# W których miesiącach jest najwyższy dodatni poziom wahań sezonowych, 
+# a w których jest najniższy? Uzasadnij odpowiedź i zinterpretuj wyniki.
+#  
+# O ile procent w każdym miesiącu wskaźniki sezonowości odchylają się od średniej dla danego miesiąca?
+#
+# --------------------------------------------------------
+# tu wpisz swój kod: 
+
+v1 <-  c(10.8, 12.9, 4.7, 28.1, 6.1, 23.1, 20.2, 23.7, 30.4, 24.6, 7.7, 14.8,
+         10.2, 10.9, 4.9, 27.3, 6.0, 27.6, 16.7, 28.3, 26.7, 24.8, 8.2, 12.9,
+         9.8,  7.9, 8.1, 25.7, 6.3, 25.2, 18.8, 29.6, 26.2, 26.1, 8.3, 12.9)
+
+# Konwersja do szeregu czasowego
+v1_ts <- ts(v1, start = c(2009, 1), frequency = 12)
+
+# Dekompozycja
+decomp <- decompose(v1_ts)
+
+# Wykreślenie wyników
+par(mfrow=c(2,2))
+plot(decomp)
+
+# Wyznaczenie procentowej różnicy między danym miesiącem a średnią
+seasonal_component <- decomp$seasonal
+monthly_mean <- mean(seasonal_component)
+percent_difference <- ((seasonal_component - monthly_mean) / monthly_mean) * 100
+
+# Odpowiedzi na pytania
+max_seasonality_month <- which.max(monthly_mean)
+min_seasonality_month <- which.min(monthly_mean)
+
+cat("Najwyższy dodatni poziom wahań sezonowych występuje w miesiącach:", month.name[max_seasonality_month], "\n")
+cat("Najniższy poziom wahań sezonowych występuje w miesiącach:", month.name[min_seasonality_month], "\n")
+
+cat("\nProcentowa różnica między danym miesiącem a średnią dla każdego miesiąca:\n")
+print(round(percent_difference, 2))
+
+
+
+
+# --------------------------------------------------------
+# Zadanie.14
+#
+# W pakiecie ISLR dostępny jest zbiór "Auto "z informacją o różnych modelach samochodów.
+# Zapoznaj się ze znaczeniem zmiennych zbioru. Dokonaj eksploracji zbioru za pomocą
+# poznanych funkcji (np. head, summary, itd.).
+#
+# Utwórz model1 regresji liniowej ze zmienną mpg jako objaśnianą a horsepower jako objaśniającą.
+# Zastanów się co zawierają zmienne i czy istnieje związek przyczynowo-skutkowy. 
+# Zinterpretuj zmienne i uzasadnij związek.
+# 
+# Dokonaj analizy parametrów modelu za pomocą funkcji summary(). Na podstawie je wyników odpowiedz 
+# na następujace pytania:
+# a) Czy istnieje związek pomiędzy zmienną objaśniającą a objaśnianą?
+# b) Jak można interpretować wartość współczynnika regresji?
+# c) Jaką liczbę mil per galon paliwa model przewiduje dla 98 koni mechanicznych? 
+# {wskazówka: użyj funkcji predict z argumentem interval="conficence"
+# d) utwórz wykres rozrzutu dla tych dwóch zmiennych; dodaj linię regresji za pomocą funkcji "abline"
+# e) użyj funkcji "plot", żeby obejrzeć wykresy diagnostyczne
+#
+# Spróbuj stworzyć model dla większej liczby zmiennych. 
+# Najpierw stwórz macierz korelacji dla zmiennych numerycznych używająch funkcji cor(). 
+# (pamiętaj, że w argumencie funkcji cor powinny być dane bez zmiennych kategorycznych)
+# f) które zmienne numeryczne są silnie skorelowane ze zmienną objaśnianą?
+#
+# Stwórz teraz model2 oparty na wszystkich zmiennych.
+# g) Które zmienne są powiązane ze zmienną objaśnianą (mpg) w statystycznie istotnym stopniu?
+# h) Jak można interpretować współczynnik przy zmiennej "year"?
+#
+# Porównaj modele ze względu na wartość R kwadrat 
+# i stwórz wykresy diagnostyczne dla obu modeli.
+
+	?Auto
+
+#
+# --------------------------------------------------------
+# tu wpisz swój kod: 
+install.packages("ISLR")library(ISLR)data("Auto")head(Auto)summary(Auto)# Utworzenie modelu1 regresji liniowejmodel1 <- lm(mpg ~ horsepower, data = Auto)# Analiza parametrów modelu1summary(model1)# Odpowiedzi na pytania:# a) Istnieje związek pomiędzy horsepower a mpg, ponieważ współczynnik przy horsepower jest istotny statystycznie.# b) Wartość współczynnika regresji mówi nam o zmianie średniej mpg na jednostkę zmiany horsepower.# c) Przewidywana liczba mil per galon paliwa dla 98 koni mechanicznych:predict(model1, newdata = data.frame(horsepower = 98), interval = "confidence")# d) Wykres rozrzutu i linię regresjiplot(Auto$horsepower, Auto$mpg, xlab = "Horsepower", ylab = "Miles Per Gallon", main = "Scatterplot with Regression Line")abline(model1, col = "red")# e) Wykresy diagnostyczneplot(model1)# f) Macierz korelacjicor_matrix <- cor(Auto[, sapply(Auto, is.numeric)])# Znajdź zmienne silnie skorelowane ze zmienną objaśnianą (mpg)strongly_correlated_vars <- names(which(cor_matrix[, "mpg"] > 0.5 | cor_matrix[, "mpg"] < -0.5))strongly_correlated_vars# g) Utwórz model2 oparty na wszystkich zmiennychmodel2 <- lm(mpg ~ ., data = Auto)# h) Analiza parametrów modelu2summary(model2)# Porównanie modeli ze względu na R-kwadratsummary(model1)$r.squaredsummary(model2)$r.squared# Wykresy diagnostyczne dla obu modelipar(mfrow = c(2, 2))plot(model1)par(mfrow = c(2, 2))plot(model2)
+
+
+# --------------------------------------------------------
+# Zadanie.15
+#
+# Wygeneruj 1000-elementowy wektor z rozkładu Poisonna z parametrem lambda=6. Policz dla tego wektora:
+# - średnią, 
+# - rozstęp, 
+# - wariancję, 
+# - kwartyle, 
+# - rozstęp międzykwartylowy, 
+# - kurtozę, 
+# - skośność ,
+# - oraz dominantę.
+# Zwizualizuj wektor za pomocą histogramu oraz wykresu pudełkowego (użyj kolorów, ustaw tytuły osi, wykresu).
+# Jak mają się do siebie średnia, mediana i dominanta?
+# Wygeneruj ponownie losowy wektor (korzystając z tej samej komendy) i uruchom ponownie napisane komendy. 
+# Czy są wyraźne różnice?
+
+
+#
+# --------------------------------------------------------
+# tu wpisz swój kod: 
+
+install.packages("moments")
+library(moments)
+require(moments)
+help(package = "moments")
+?moments::kurtosis
+?moments::skewness# Wygenerowanie 1000-elementowego wektora z rozkładu Poissonapoisson_vector <- rpois(1000, lambda = 6)# Obliczenia statystykmean_value <- mean(poisson_vector)range_value <- range(poisson_vector)variance_value <- var(poisson_vector)quantiles <- quantile(poisson_vector)iqr_value <- IQR(poisson_vector)kurtosis_value <- kurtosis(poisson_vector)skewness_value <- skewness(poisson_vector)mode_value <- as.numeric(names(sort(table(poisson_vector), decreasing = TRUE)[1]))# Wizualizacja danychpar(mfrow = c(1, 2))# Histogramhist(poisson_vector, col = "lightblue", main = "Histogram", xlab = "Value", ylab = "Frequency")# Wykres pudełkowyboxplot(poisson_vector, col = "lightgreen", main = "Boxplot", ylab = "Value")# Wypisanie wynikówcat("Mean:", mean_value, "\n")cat("Range:", range_value, "\n")cat("Variance:", variance_value, "\n")cat("Quantiles:", quantiles, "\n")cat("Interquartile Range (IQR):", iqr_value, "\n")cat("Kurtosis:", kurtosis_value, "\n")cat("Skewness:", skewness_value, "\n")cat("Mode:", mode_value, "\n")# Generowanie ponownie losowego wektorapoisson_vector_new <- rpois(1000, lambda = 6)# Obliczenia statystyk dla nowego wektoramean_value_new <- mean(poisson_vector_new)range_value_new <- range(poisson_vector_new)variance_value_new <- var(poisson_vector_new)quantiles_new <- quantile(poisson_vector_new)iqr_value_new <- IQR(poisson_vector_new)kurtosis_value_new <- kurtosis(poisson_vector_new)skewness_value_new <- skewness(poisson_vector_new)mode_value_new <- as.numeric(names(sort(table(poisson_vector_new), decreasing = TRUE)[1]))# Wizualizacja danych dla nowego wektorapar(mfrow = c(1, 2))# Histogram dla nowego wektorahist(poisson_vector_new, col = "lightcoral", main = "Histogram (New)", xlab = "Value", ylab = "Frequency")# Wykres pudełkowy dla nowego wektoraboxplot(poisson_vector_new, col = "lightpink", main = "Boxplot (New)", ylab = "Value")# Wypisanie wyników dla nowego wektoracat("\nAfter generating a new random vector:\n")cat("Mean:", mean_value_new, "\n")cat("Range:", range_value_new, "\n")cat("Variance:", variance_value_new, "\n")cat("Quantiles:", quantiles_new, "\n")cat("Interquartile Range (IQR):", iqr_value_new, "\n")cat("Kurtosis:", kurtosis_value_new, "\n")cat("Skewness:", skewness_value_new, "\n")cat("Mode:", mode_value_new, "\n")
+
+# Czy są wyraźne różnice?# Nie ma wyraźnych różnic
